@@ -1,0 +1,169 @@
+### Create a Custom S3 Class 'Circle'
+
+```{r}
+Circle <- function(radius) {
+  if (!is.numeric(radius) || radius <= 0) {
+    stop("Radius must be a positive number")
+  }
+  
+  obj <- list(radius = radius)
+  class(obj) <- "Circle"
+  
+  return(obj)
+}
+
+print.Circle <- function(obj) {
+  if (!inherits(obj, "Circle")) {
+    stop("Object is not of class 'Circle'")
+  }
+  
+  area <- pi * obj$radius^2  # Calculate area
+  cat("Type:", "Circle object\n")
+  cat("Radius:", obj$radius, "\n")
+  cat("Area:", round(area, 5), "\n")
+}
+
+
+my_circle <- Circle(5)
+print(my_circle)
+```
+
+### Modified Circle constructor to include center coordinates (x, y)
+
+```{r}
+Circle <- function(radius, x = 0, y = 0) {
+  if (!is.numeric(radius) || radius <= 0) {
+    stop("Radius must be a positive number")
+  }
+  if (!is.numeric(x) || !is.numeric(y)) {
+    stop("Coordinates (x, y) must be numeric values")
+  }
+  
+  obj <- list(radius = radius, x = x, y = y)  # Store radius and center coordinates
+  class(obj) <- "Circle"  # Assign class "Circle"
+  
+  return(obj)
+}
+
+# Print method for Circle
+print.Circle <- function(obj) {
+  if (!inherits(obj, "Circle")) {
+    stop("Object is not of class 'Circle'")
+  }
+  
+  area <- pi * obj$radius^2  # Calculate area
+  cat("Type:", "Circle object\n")
+  cat("Radius:", obj$radius, "\n")
+  cat("Center: (", obj$x, ",", obj$y, ")\n", sep = "")
+  cat("Area:", round(area, 5), "\n")  
+}
+```
+
+### Custom operator %\>% to check if two circles intersect
+
+```{r}
+`%>%` <- function(c1, c2) {
+  if (!inherits(c1, "Circle") || !inherits(c2, "Circle")) {
+    stop("Both objects must be of class 'Circle'")
+  }
+  
+  # Compute distance between circle centers
+  distance <- sqrt((c2$x - c1$x)^2 + (c2$y - c1$y)^2)
+  
+  # Check if they intersect
+  return(distance <= (c1$radius + c2$radius))
+}
+
+# Example usage
+circle1 <- Circle(3, 0, 0)
+circle2 <- Circle(4, 5, 0)
+
+print(circle1)
+print(circle2)
+
+# Check if circles intersect
+result <- circle1 %>% circle2
+print(result)  # Should print TRUE
+```
+
+### Function to calculate the circumference of a Circle
+
+```{r}
+circumference <- function(obj) {
+  if (!inherits(obj, "Circle")) {
+    stop("Object must be of class 'Circle'")
+  }
+  
+  return(2 * pi * obj$radius)
+}
+
+my_circle <- Circle(5)
+circumference(my_circle)
+```
+
+### Create a Custom S4 Class
+
+```{r}
+# Define the S4 class "Rectangle"
+if (!isGeneric("%==%")) {
+  setGeneric("%==%", function(rect1, rect2) standardGeneric("%==%"))
+}
+
+setClass(
+  "Rectangle",
+  slots = list(
+    length = "numeric",
+    width = "numeric"
+  ),
+  validity = function(object) {
+    if (object@length <= 0 || object@width <= 0) {
+      return("Length and width must be positive numbers")
+    }
+    return(TRUE)
+  }
+)
+
+# Constructor function for Rectangle
+Rectangle <- function(length, width) {
+  if (!is.numeric(length) || length <= 0) {
+    stop("Length must be a positive number")
+  }
+  if (!is.numeric(width) || width <= 0) {
+    stop("Width must be a positive number")
+  }
+  
+  new("Rectangle", length = length, width = width)
+}
+
+# Define show() method
+setMethod("show", "Rectangle", function(object) {
+  area <- object@length * object@width
+  cat("Type:", "Rectangle object\n")
+  cat("Length:", object@length, "\n")
+  cat("Width:", object@width, "\n")
+  cat("Area:", area, "\n")
+})
+
+# Example usage
+my_rectangle <- Rectangle(4, 6)
+show(my_rectangle)
+```
+
+### Define custom operator %==%
+
+```{r}
+setGeneric("%==%", function(rect1, rect2) {
+  standardGeneric("%==%")
+})
+
+setMethod("%==%", signature(rect1 = "Rectangle", rect2 = "Rectangle"), function(rect1, rect2) {
+  area1 <- rect1@length * rect1@width
+  area2 <- rect2@length * rect2@width
+  return(area1 == area2)
+})
+
+rect1 <- Rectangle(4, 6)  # Area = 24
+rect2 <- Rectangle(3, 8)  # Area = 24
+
+print(rect1 %==% rect2)  # Should return TRUE
+```
