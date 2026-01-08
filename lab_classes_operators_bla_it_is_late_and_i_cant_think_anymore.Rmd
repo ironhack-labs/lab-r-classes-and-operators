@@ -1,0 +1,74 @@
+---
+title: "lab_classes_and_stuff"
+output: html_document
+date: "2026-01-08"
+---
+
+## Task 1: Create a Custom S3 Class
+
+1.  Define a custom S3 class called "Circle" that represents a circle.
+    The class should store the radius of the circle.
+2.  Write a constructor function Circle() that takes the radius as input
+    and assigns the class "Circle" to the object.
+3.  Write a print.Circle() method to display the radius and area of the
+    circle when the object is printed. Use the formula for the area of a
+    circle: area = π \* radius\^2.
+
+```{r}
+
+# Define a constructor for the class using class()
+# my_class <- function(data, name) {
+#   obj <- list(data = data, name = name)
+#   class(obj) <- "my_class"
+#   return(obj)
+Circle <- function(radius, x, y) {
+  obj <- list(radius = radius)
+  class(obj) <- "Circle"
+  return(obj)
+}
+
+my_circle <- Circle(5)
+print(my_circle)
+```
+
+## Task 2: Define a Custom Operator
+
+1.  Define a custom operator %\>% that calculates the distance between
+    the centers of two circles and checks if they intersect. The
+    operator should return TRUE if the circles intersect and FALSE
+    otherwise. The formula for the distance between two circles is:
+    distance = sqrt((x2 - x1)\^2 + (y2 - y1)\^2).
+
+    -   Assume that the circles are centered at (x1, y1) and (x2, y2),
+        respectively.
+    -   Two circles intersect if the distance between their centers is
+        less than or equal to the sum of their radii.
+
+2.  Modify the Circle class to include x and y coordinates for the
+    center of the circle.
+
+    **Example:**
+    `r  circle1 <- Circle(radius = 3, x = 0, y = 0)  circle2 <- Circle(radius = 4, x = 5, y = 0)  circle1 %> circle2`
+    **Output:** TRUE
+```{r}
+
+# Define custom addition operator for MyVector
+# `%+%` <- function(a, b) {
+#   if (!inherits(a, "MyVector") || !inherits(b, "MyVector")) {
+#     stop("Both operands must be of class 'MyVector'.")
+#   }
+#   MyVector(unclass(a) + unclass(b))
+# }
+
+"%>%" <- function(c1, c2) {
+ if (!inherits(a, "MyCircle") || !inherits(b, "MyCircle")){
+  stop("Both operands must be of class 'MyCircle'.")
+ } 
+  MyCircle(unclass(circle1) + unclass(circle2))
+}
+
+c1 <- Circle(radius = 3, x = 0, y = 0)  
+c2 <- Circle(radius = 4, x = 5, y = 0)  
+result <- a %>% b
+print(result)
+```
