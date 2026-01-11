@@ -1,74 +1,141 @@
 ---
-title: "lab_classes_and_stuff"
+title: "Lab | Classes, Functions & Operators in R"
 output: html_document
 date: "2026-01-08"
 ---
 
 ## Task 1: Create a Custom S3 Class
 
-1.  Define a custom S3 class called "Circle" that represents a circle.
-    The class should store the radius of the circle.
-2.  Write a constructor function Circle() that takes the radius as input
-    and assigns the class "Circle" to the object.
-3.  Write a print.Circle() method to display the radius and area of the
-    circle when the object is printed. Use the formula for the area of a
-    circle: area = π \* radius\^2.
-
 ```{r}
-
-# Define a constructor for the class using class()
-# my_class <- function(data, name) {
-#   obj <- list(data = data, name = name)
-#   class(obj) <- "my_class"
-#   return(obj)
-Circle <- function(radius, x, y) {
+# Define a constructor for the Circle class
+Circle <- function(radius) {
   obj <- list(radius = radius)
   class(obj) <- "Circle"
   return(obj)
 }
 
+# Define a print method for Circle class
+print.Circle <- function(x, ...) {
+  area <- pi * (x$radius ^ 2)
+  cat("Type: \"Circle object\"\n")
+  cat("Radius:", x$radius, "\n")
+  cat("Area:", area, "\n")
+}
+
+# Test Task 1
 my_circle <- Circle(5)
 print(my_circle)
 ```
 
 ## Task 2: Define a Custom Operator
 
-1.  Define a custom operator %\>% that calculates the distance between
-    the centers of two circles and checks if they intersect. The
-    operator should return TRUE if the circles intersect and FALSE
-    otherwise. The formula for the distance between two circles is:
-    distance = sqrt((x2 - x1)\^2 + (y2 - y1)\^2).
-
-    -   Assume that the circles are centered at (x1, y1) and (x2, y2),
-        respectively.
-    -   Two circles intersect if the distance between their centers is
-        less than or equal to the sum of their radii.
-
-2.  Modify the Circle class to include x and y coordinates for the
-    center of the circle.
-
-    **Example:**
-    `r  circle1 <- Circle(radius = 3, x = 0, y = 0)  circle2 <- Circle(radius = 4, x = 5, y = 0)  circle1 %> circle2`
-    **Output:** TRUE
 ```{r}
-
-# Define custom addition operator for MyVector
-# `%+%` <- function(a, b) {
-#   if (!inherits(a, "MyVector") || !inherits(b, "MyVector")) {
-#     stop("Both operands must be of class 'MyVector'.")
-#   }
-#   MyVector(unclass(a) + unclass(b))
-# }
-
-"%>%" <- function(c1, c2) {
- if (!inherits(a, "MyCircle") || !inherits(b, "MyCircle")){
-  stop("Both operands must be of class 'MyCircle'.")
- } 
-  MyCircle(unclass(circle1) + unclass(circle2))
+# Modify the Circle class to include x and y coordinates
+Circle <- function(radius, x = 0, y = 0) {
+  obj <- list(radius = radius, x = x, y = y)
+  class(obj) <- "Circle"
+  return(obj)
 }
 
-c1 <- Circle(radius = 3, x = 0, y = 0)  
-c2 <- Circle(radius = 4, x = 5, y = 0)  
-result <- a %>% b
+# Update the print method
+print.Circle <- function(x, ...) {
+  area <- pi * (x$radius ^ 2)
+  cat("Type: \"Circle object\"\n")
+  cat("Radius:", x$radius, "\n")
+  cat("Center: (", x$x, ",", x$y, ")\n", sep="")
+  cat("Area:", area, "\n")
+}
+
+# Define the custom operator %>% for checking circle intersection
+`%>%` <- function(c1, c2) {
+  if (!inherits(c1, "Circle") || !inherits(c2, "Circle")) {
+    stop("Both operands must be of class 'Circle'.")
+  }
+
+  # Calculate distance between centers
+  distance <- sqrt((c2$x - c1$x)^2 + (c2$y - c1$y)^2)
+
+  # Check if circles intersect
+  sum_radii <- c1$radius + c2$radius
+  return(distance <= sum_radii)
+}
+
+# Test Task 2
+circle1 <- Circle(radius = 3, x = 0, y = 0)
+circle2 <- Circle(radius = 4, x = 5, y = 0)
+result <- circle1 %>% circle2
+print(result)
+```
+
+## Task 3: Write a Function for the Class
+
+```{r}
+# Define circumference function
+circumference <- function(x) {
+  UseMethod("circumference")
+}
+
+# Method for Circle class
+circumference.Circle <- function(x) {
+  return(2 * pi * x$radius)
+}
+
+# Test Task 3
+my_circle <- Circle(radius = 5)
+circ_value <- circumference(my_circle)
+print(circ_value)
+```
+
+## Task 4: Create a Custom S4 Class
+
+```{r}
+# Define S4 class Rectangle
+setClass("Rectangle",
+  slots = list(
+    length = "numeric",
+    width = "numeric"
+  )
+)
+
+# Define constructor function
+Rectangle <- function(length, width) {
+  new("Rectangle", length = length, width = width)
+}
+
+# Define show method for Rectangle
+setMethod("show", "Rectangle",
+  function(object) {
+    area <- object@length * object@width
+    cat("Type: \"Rectangle object\"\n")
+    cat("Length:", object@length, "\n")
+    cat("Width:", object@width, "\n")
+    cat("Area:", area, "\n")
+  }
+)
+
+# Test Task 4
+my_rectangle <- Rectangle(length = 4, width = 6)
+show(my_rectangle)
+```
+
+## Task 5: Define a Custom Operator for the S4 Class
+
+```{r}
+# Define the %==% operator for comparing Rectangle areas
+`%==%` <- function(r1, r2) {
+  if (!inherits(r1, "Rectangle") || !inherits(r2, "Rectangle")) {
+    stop("Both operands must be of class 'Rectangle'.")
+  }
+
+  area1 <- r1@length * r1@width
+  area2 <- r2@length * r2@width
+
+  return(area1 == area2)
+}
+
+# Test Task 5
+rectangle1 <- Rectangle(length = 4, width = 6)
+rectangle2 <- Rectangle(length = 3, width = 8)
+result <- rectangle1 %==% rectangle2
 print(result)
 ```
